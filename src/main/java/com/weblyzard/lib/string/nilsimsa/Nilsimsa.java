@@ -216,7 +216,7 @@ public class Nilsimsa {
 		byte[] n2 = cmp.digest();
 		
 		for (int i=0; i<32; i++) {
-			j = 255 & n1[i] ^ n2[i];
+			j = 255 & (n1[i] ^ n2[i]);
 			bits += POPC[ j ];
 		}
 		return 128 - bits;

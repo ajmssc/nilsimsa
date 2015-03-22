@@ -34,9 +34,60 @@ public class NilsimsaTest {
 	public NilsimsaTest() {
 		testDocuments = _readTestDocuments();
 	}
-	
+
 	@Test
-	public void hashTest() {	
+	public void compareTest() {
+		Nilsimsa n1 = new Nilsimsa();
+		n1.update("Hi Casey, can you send me the computation for this project?");
+		System.out.println(n1.hexdigest());
+
+		Nilsimsa n2 = new Nilsimsa();
+		n2.update("Hello John, can you send me the computation for this project?");
+		System.out.println(n2.hexdigest());
+
+		System.out.println(n2.compare(n1));
+
+	}
+
+	private class HashPair {
+		Nilsimsa hash;
+		String description;
+		HashPair(Nilsimsa h, String desc) {
+			hash = h;
+			description = desc;
+		}
+	}
+
+	@Test
+	public void testSimilarity() {
+		ArrayList<HashPair> hashes = new ArrayList<>();
+		for (String testData: TEST_DATA) {
+			String[] testSet = testData.split(" ");
+			try {
+				URL resource = NilsimsaTest.class.getClassLoader().getResource("wiki-"+ testSet[1] + ".txt");
+				String documentContent = FileUtils.readFileToString(new File( resource.getFile()), CONTENT_ENCODING);
+				Nilsimsa n = new Nilsimsa();
+				n.update(documentContent);
+				hashes.add(new HashPair(n, testSet[1]));
+			} catch (Exception e) {
+				e.printStackTrace();
+				fail("Cannot read corpus.");
+			}
+		}
+		System.out.println("ok");
+		for (int i=0; i < hashes.size(); i++) {
+			HashPair p = hashes.get(i);
+			for (int j=0; j < hashes.size(); j++) {
+				if (i != j) {
+					HashPair p2 = hashes.get(j);
+					System.out.println("Compare " + p.description + " <-> " + p2.description + " = " + p.hash.compare(p2.hash) + " bits");
+				}
+			}
+		}
+	}
+
+	@Test
+	public void hashTest() {
 		for (Map.Entry<String, String>testSet: testDocuments.entrySet()) {
 			Nilsimsa n = new Nilsimsa();
 			n.update( testSet.getValue() );
